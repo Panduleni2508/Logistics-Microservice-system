@@ -1,0 +1,59 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo_data:/data/db
+
+  logistics_service:
+    build: ./logistics_service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka
+      - mongodb
+    privileged: true  # Added privileged flag
+
+  standard_delivery_service:
+    build: ./standard_delivery_service
+    depends_on:
+      - kafka
+      - mongodb
+    privileged: true  # Added privileged flag
+
+  express_delivery_service:
+    build: ./express_delivery_service
+    depends_on:
+      - kafka
+      - mongodb
+    privileged: true  # Added privileged flag
+
+  international_delivery_service:
+    build: ./international_delivery_service
+    depends_on:
+      - kafka
+      - mongodb
+    privileged: true  # Added privileged flag
