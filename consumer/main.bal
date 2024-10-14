@@ -67,13 +67,13 @@ function submitDeliveryRequest() returns error? {
 
     // Get the shipment type as a string input
     string shipmentType = check getShipmentType();
-    
+     
     // Collect other delivery details from the user
     json payload = collectDeliveryDetails(shipmentType);
     
     // Send the collected details to the Kafka topic "delivery-requests"
     check sendToKafka(payload, "delivery-requests");
-    
+     
     // Confirm submission by displaying the tracking ID
     displaySubmissionConfirmation((check payload.requestId).toString());
 }
